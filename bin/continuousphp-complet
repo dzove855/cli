@@ -1,0 +1,105 @@
+#!/bin/bash
+
+_continuous()
+{
+    local current_word=${COMP_WORDS[COMP_CWORD]}
+    local previous_word=${COMP_WORDS[COMP_CWORD - 1]}
+
+    if [[ "$current_word" == "" ]]
+    then
+
+        _continuous_method "$current_word"
+
+    elif [[ "$current_word" == "-" || "$current_word" =~ "--" ]]
+    then
+
+        _continuous_options "$current_word"
+
+    elif [[ "$previous_word" == "--profile" ]]
+    then
+
+        _continuous_profile "$current_word"
+    else
+ 
+        _continuous_method "$current_word"
+
+    fi
+
+}
+
+complete -o default -F _continuous continuousphp
+
+_continuous_profile()
+{
+    local profile_name="$1"
+    local continuous_home_folder="${HOME}/.continuousphp"
+    local continuous_credential_file="${continuous_home_folder}/credentials"
+
+    list_profile=$(grep "\[${profile_name}" $continuous_credential_file | tr -d '[,]' )
+
+    COMPREPLY=( $( compgen -W "$list_profile" -- "$profile_name" ) )
+}
+
+_continuous_options()
+{
+    local short_options="$1"
+    local short_options_list=("-h" "-q" "-n" "-n" "-r" "-s")
+    local long_options_list=("--help" "--quiet" "--profile" "--no-interaction" "--ref" "--state" "--noPr" "--token")
+    local found=()
+
+    if [[ "$short_options" == "-" ]]
+    then
+
+        COMPREPLY=( $( compgen -W "$(printf "%s\n" "${short_options_list[@]}")" -- "$short_options" ) )
+
+    elif [[ "$short_options" == "--" ]]
+    then
+
+        COMPREPLY=( $( compgen -W "$(printf "%s\n" "${long_options_list[@]}")" -- "$short_options" ) )
+        return 0
+    fi
+
+    for in_array in "${long_options_list[@]}"
+    do
+        [[ "$in_array" == "$short_options"* ]] && found+=("$in_array")
+    done
+    
+    ! [[ "$found" == "" ]] && COMPREPLY=( $( compgen -W "$(printf "%s\n" "${found[@]}")" -- "$short_options" ) ) 
+}
+
+_continuous_method()
+{
+    local method_options="$1"
+    local method_options_list=("configure" "help" "list" "build:list" "build:start" "build:stop" "company:list" \
+                 "project:list" "repo:list")
+    local found=()
+
+    if [[ "$method_options" == "" ]]
+    then
+        COMPREPLY=( $( compgen -W "$(printf "%s\n" "${method_options_list[@]}")" -- "$short_options" ) )
+        return 0
+    fi
+
+
+    for in_array in "${method_options_list[@]}"
+    do
+        [[ "$in_array" == "$method_options"* ]] && found+=("$in_array")
+    done
+    
+    ! [[ "${found}" == "" ]] && COMPREPLY=( $( compgen -W "$(printf "%s\n" "${found[@]}")" -- "$short_options" ) )   
+}
+
+#_continuous_repo()
+#{
+#
+#}
+
+#_continuous_build()
+#{
+#
+#}
+
+#_continous_ref()
+#{
+#
+#}
