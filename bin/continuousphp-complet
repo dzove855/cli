@@ -76,7 +76,7 @@ _continuous_method()
 
     if [[ "$method_options" == "" ]]
     then
-        COMPREPLY=( $( compgen -W "$(printf "%s\n" "${method_options_list[@]}")" -- "$short_options" ) )
+        COMPREPLY=( $( compgen -W "$(printf "%s\n" "${method_options_list[@]}")" -- "$method_options" ) )
         return 0
     fi
 
@@ -86,7 +86,7 @@ _continuous_method()
         [[ "$in_array" == "$method_options"* ]] && found+=("$in_array")
     done
     
-    ! [[ "${found}" == "" ]] && COMPREPLY=( $( compgen -W "$(printf "%s\n" "${found[@]}")" -- "$short_options" ) )   
+    ! [[ "${found}" == "" ]] && COMPREPLY=( $( compgen -W "$(printf "%s\n" "${found[@]}")" -- "$method_options" ) )   
 }
 
 #_continuous_repo()
